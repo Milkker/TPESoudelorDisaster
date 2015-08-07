@@ -1,0 +1,62 @@
+<!doctype html>
+<html>
+<head>
+	<title>蘇迪勒颱風災情資料</title>
+    <style>
+      #map-canvas {
+			width: 500px;
+			height: 400px;
+			background-color: #CCC;
+      }
+    </style>
+	<script type="text/javascript" src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js"></script>
+</head>
+<body>
+    <div id="map-canvas"></div>
+</body>
+<script type="text/javascript">
+	var map;
+	var result;
+
+	function initialize() {
+		var mapCanvas = document.getElementById('map-canvas');
+	    var mapOptions = {
+	      center: new google.maps.LatLng(23.69781, 120.96051499999999),
+	      zoom: 8,
+	      mapTypeId: google.maps.MapTypeId.ROADMAP
+	    }
+    	map = new google.maps.Map(mapCanvas, mapOptions);
+	}
+
+	function addMarker(Wgs84Y, Wgs84X, title){
+		var myLatlng = new google.maps.LatLng(Wgs84X, Wgs84Y);
+		var marker = new google.maps.Marker({
+			position: myLatlng, //Marker的座標
+			map: map, //map物件，以這篇文章的例子，就是上面那個map物件
+			title: title //當滑鼠移至Marker上時，要顯示的Title文字
+		});
+	}
+
+	$(function(){
+		initialize();
+
+		$.get("https://tcgbusfs.blob.core.windows.net/blobfs/GetDisasterSummary.json", function(data){
+			result = data["DataSet"]["diffgr:diffgram"][0]["NewDataSet"][0]["CASE_SUMMARY"];
+
+			for(var index in result){
+				var item = result[index];
+
+				var title=item.CaseLocationDistrict + "\n" + item.CaseLocationDescription + "\n" + item.CaseDescription;
+
+				console.log(item);
+				console.log(item.Wgs84X[0]);
+				console.log(item.Wgs84Y[0]);
+				console.log(title);
+
+				addMarker(item.Wgs84X[0], item.Wgs84Y[0], title);
+			}
+		})
+	})
+</script>
+</html>
